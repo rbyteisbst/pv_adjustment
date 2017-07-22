@@ -30,12 +30,19 @@ vt_pv    <- read_csv("~/R/pv_adjustment/data/S_Vermont_Billing (2).csv") %>%
 combo <- smd_hourly %>% 
   inner_join(vt_net) %>% 
   inner_join(vt_gross) %>% 
-  inner_join(vt_pv)
+  inner_join(vt_pv) %>% 
+  mutate(vt_adj = vt_gross_load - .4*vt_pv) #.4 is based on back of envelope calcuation in email
 
-#current
+#current R^2 = .67
 glance(lm(iso_load ~ vt_net_load,data = combo))
+tidy(lm(iso_load ~ vt_net_load,data = combo))
 
-#suggested
+#suggested R^2 = .82
+#this is even more of a difference than I would have expected
+glance(lm(iso_load ~ vt_adj,data = combo))
+tidy(lm(iso_load ~ vt_adj,data = combo))
+
+#model suggests using an even smaller factor
 glance(lm(iso_load ~ vt_gross_load + vt_pv,data = combo))
 tidy(lm(iso_load ~ vt_gross_load + vt_pv,data = combo))
 
